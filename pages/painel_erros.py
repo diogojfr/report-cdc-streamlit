@@ -31,12 +31,12 @@ from components.data_loader import (
     load_erros_dia,
 )
 
-GREEN    = "#2e7d32"
-GREEN_LT = "#66bb6a"
+BLUE     = "#105dc6"   # azul da marca (#003276) clareado para ficar legivel no tema dark
+BLUE_LT  = "#478ceb"
 RED      = "#c62828"
 
-COLORS = [RED, GREEN]
-COLORS_BAR = [GREEN, RED]
+COLORS = [RED, BLUE]
+COLORS_BAR = [BLUE, RED]
 
 df_pallets = load_pallets()
 df_cargas  = load_cargas()

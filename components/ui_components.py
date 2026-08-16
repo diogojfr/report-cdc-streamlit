@@ -9,15 +9,16 @@ from datetime import date
 
 
 # ── CDC color palette ─────────────────────────────────────────────────────────
-GREEN    = "#2e7d32"
-GREEN_LT = "#66bb6a"
+BLUE     = "#105dc6"   # azul da marca (#003276) clareado para ficar legivel no tema dark
+BLUE_LT  = "#478ceb"
 RED      = "#c62828"
 RED_LT   = "#ef9a9a"
 GRAY     = "#64748b"
 BG       = "#ffffff"
 
-CHART_COLORS = [GREEN, RED, "#42a5f5", "#ffa726", "#ab47bc", "#26c6da"]
-# CHART_COLORS = [RED, GREEN, "#42a5f5", "#ffa726", "#ab47bc", "#26c6da"]
+# 5o slot era #ab47bc (roxo): colidia com o azul da marca sob protanopia (ΔE 6.9)
+CHART_COLORS = [BLUE, RED, "#42a5f5", "#ffa726", "#ec407a", "#26c6da"]
+# CHART_COLORS = [RED, BLUE, "#42a5f5", "#ffa726", "#ec407a", "#26c6da"]
 
 # ── Header ────────────────────────────────────────────────────────────────────
 def page_header(title: str, period: tuple[date, date] | None = None):

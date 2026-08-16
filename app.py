@@ -17,7 +17,7 @@ if not st.session_state.authenticated:
 
 # ── Main App ─────────────────────────────────────────────────────────────
 image_url = "logo-cdc.png"  # versao branca, para o tema dark; use logo-cdc-azul.png no tema light
-st.image(image_url, caption=' ',width='stretch')
+st.image(image_url, caption=' ', width=750)
 
 st.set_page_config(
     page_title="Easy Pallet – CDC Dashboard",
