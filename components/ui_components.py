@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import date
 
 
-# ── ISM color palette ─────────────────────────────────────────────────────────
+# ── CDC color palette ─────────────────────────────────────────────────────────
 GREEN    = "#2e7d32"
 GREEN_LT = "#66bb6a"
 RED      = "#c62828"
@@ -96,7 +96,7 @@ def _chart_defaults(fig: go.Figure) -> go.Figure:
 
 
 def donut_chart(labels: list, values: list, title: str = "", colors: list = CHART_COLORS) -> go.Figure:
-    """Green/Red donut matching the ISM style."""
+    """Green/Red donut matching the CDC style."""
     fig = go.Figure(go.Pie(
         labels=labels,
         values=values,

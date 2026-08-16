@@ -1,4 +1,4 @@
-# Easy Pallet – ISM Dashboard (Streamlit)
+# Easy Pallet – CDC Dashboard (Streamlit)
 
 Dashboard operacional no estilo do Looker/Easy Pallet, construído com **Streamlit + Plotly**.
 

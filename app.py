@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 
 # ── Authentication ───────────────────────────────────────────────────────
@@ -8,7 +10,7 @@ if not st.session_state.authenticated:
     st.title("🔒 Acesso Restrito")
     password = st.text_input("Digite a senha", type="password")
     if st.button("Entrar"):
-        if password == "ism@2026":  # Change this to your desired password
+        if password == "cdc@2026":  # Change this to your desired password
             st.session_state.authenticated = True
             st.rerun()
         else:
@@ -16,11 +18,11 @@ if not st.session_state.authenticated:
     st.stop()
 
 # ── Main App ─────────────────────────────────────────────────────────────
-image_url = "logo-ism.png"
+image_url = "logo-cdc.png" if os.path.exists("logo-cdc.png") else "logo_easypallet.png"
 st.image(image_url, caption=' ',width='stretch')
 
 st.set_page_config(
-    page_title="Easy Pallet – ISM Dashboard",
+    page_title="Easy Pallet – CDC Dashboard",
     page_icon="📦",
     layout="wide",
     initial_sidebar_state="expanded",
