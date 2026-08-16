@@ -1,5 +1,3 @@
-import os
-
 import streamlit as st
 
 # ── Authentication ───────────────────────────────────────────────────────
@@ -18,7 +16,7 @@ if not st.session_state.authenticated:
     st.stop()
 
 # ── Main App ─────────────────────────────────────────────────────────────
-image_url = "logo-cdc.png" if os.path.exists("logo-cdc.png") else "logo_easypallet.png"
+image_url = "logo-cdc.png"  # versao branca, para o tema dark; use logo-cdc-azul.png no tema light
 st.image(image_url, caption=' ',width='stretch')
 
 st.set_page_config(
