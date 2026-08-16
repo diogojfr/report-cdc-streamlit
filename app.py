@@ -1,6 +1,25 @@
+import os
+
 import streamlit as st
+from dotenv import load_dotenv
 
 # ── Authentication ───────────────────────────────────────────────────────
+load_dotenv()
+
+
+def _get_app_password():
+    """Senha vem do st.secrets (Streamlit Cloud) ou do .env/variável de ambiente (local)."""
+    try:
+        if "APP_PASSWORD" in st.secrets:
+            return st.secrets["APP_PASSWORD"]
+    except Exception:
+        # Nenhum arquivo de secrets configurado (ex.: rodando localmente)
+        pass
+    return os.getenv("APP_PASSWORD")
+
+
+APP_PASSWORD = _get_app_password()
+
 if 'authenticated' not in st.session_state:
     st.session_state.authenticated = False
 
@@ -8,7 +27,7 @@ if not st.session_state.authenticated:
     st.title("🔒 Acesso Restrito")
     password = st.text_input("Digite a senha", type="password")
     if st.button("Entrar"):
-        if password == "cdc@2026":  # Change this to your desired password
+        if APP_PASSWORD and password == APP_PASSWORD:
             st.session_state.authenticated = True
             st.rerun()
         else:
