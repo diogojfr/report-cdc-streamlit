@@ -50,17 +50,17 @@ df_conferencia = load_conferencia()
 
 # ── Sidebar filters ───────────────────────────────────────────────────────
 # Use a single date picker for all charts (same period applied across datasets)
-df_pallets, period = date_filter(df_pallets, col="DATA_ENTREGA", key_prefix="period")
+df_pallets, period = date_filter(df_pallets, col="DATA_OPERACAO", key_prefix="period")
 start, end = period
 
 # Apply the same date range to other tables
-if not df_cargas.empty and "delivery_date" in df_cargas.columns:
-    mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
-    df_cargas = df_cargas[mask_cargas]
+# if not df_cargas.empty and "delivery_date" in df_cargas.columns:
+#     mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
+#     df_cargas = df_cargas[mask_cargas]
 
-if not df_conferencia.empty and "data_entrega" in df_conferencia.columns:
-    mask_conf = (df_conferencia["data_entrega"].dt.date >= start) & (df_conferencia["data_entrega"].dt.date <= end)
-    df_conferencia = df_conferencia[mask_conf]
+# if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
+#     mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
+#     df_conferencia = df_conferencia[mask_conf]
 
 
 # ── Header ────────────────────────────────────────────────────────────────
@@ -167,11 +167,11 @@ with col_right:
     st.markdown('<div class="card-title">Caixas por Dia</div>',
                 unsafe_allow_html=True)
     daily = (
-        df_pallets.groupby(["DATA_ENTREGA", "TIPO_PALETE"])["CAIXAS"]
+        df_pallets.groupby(["DATA_OPERACAO", "TIPO_PALETE"])["CAIXAS"]
         .sum()
         .reset_index()
     )
-    fig2 = bar_chart(daily, x="DATA_ENTREGA", y="CAIXAS", color="TIPO_PALETE", barmode="group", colors=COLORS)
+    fig2 = bar_chart(daily, x="DATA_OPERACAO", y="CAIXAS", color="TIPO_PALETE", barmode="group", colors=COLORS)
     st.plotly_chart(fig2, use_container_width=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -237,7 +237,7 @@ st.markdown("<div style='height:16px'/>", unsafe_allow_html=True)
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="card-title">Dados detalhados – Listas</div>', unsafe_allow_html=True)
 
-df_pallets["DATA_ENTREGA"] = df_pallets["DATA_ENTREGA"].dt.date
+df_pallets["DATA_OPERACAO"] = df_pallets["DATA_OPERACAO"].dt.date
 
 # Download button for the pallets/listas table
 st.download_button(

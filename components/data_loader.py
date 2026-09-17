@@ -23,7 +23,7 @@ def load_csv(filename: str, **kwargs) -> pd.DataFrame:
 def load_pallets() -> pd.DataFrame:
     """Expects: data/pallets.csv  with columns date, type, qty"""
     # df = load_csv("pallets.csv", parse_dates=["date"])
-    df = load_csv("tab_orders.csv", parse_dates=["DATA_ENTREGA"])
+    df = load_csv("tab_orders.csv", parse_dates=["DATA_OPERACAO"])
     return df
 
 
@@ -35,7 +35,7 @@ def load_cargas() -> pd.DataFrame:
 
 def load_conferencia() -> pd.DataFrame:
     """Expects: data/conferencia.csv  with columns date, op, duration_sec, errors"""
-    df = load_csv("conf_registros.csv", parse_dates=["data_entrega","tempo_conferencia"])
+    df = load_csv("conf_registros.csv", parse_dates=["data_operacao","tempo_conferencia"])
     return df
 
 
@@ -46,22 +46,22 @@ def load_erros() -> pd.DataFrame:
 
 def load_caixa_hora() -> pd.DataFrame:
     """Expects: data/caixa_hora.csv  with columns date, carga_id, error_type, qty"""
-    df = load_csv("caixa_hora.csv", parse_dates=["DATA_ENTREGA"])
+    df = load_csv("caixa_hora.csv", parse_dates=["DATA_OPERACAO"])
     return df
 
 def load_tempo_montagem() -> pd.DataFrame:
     """Expects: data/tempo_montagem.csv  with columns date, carga_id, error_type, qty"""
-    df = load_csv("tempo_medio_montagem.csv", parse_dates=["date"])
+    df = load_csv("tempo_medio_mont.csv", parse_dates=["data_operacao"])
     return df
 
 def load_tempo_conferencia_dia() -> pd.DataFrame:
     """Expects: data/tempo_conferencia.csv  with columns date, carga_id, error_type, qty"""
-    df = load_csv("media_conf_dia.csv", parse_dates=["date"])
+    df = load_csv("media_conf_dia.csv", parse_dates=["data_operacao"])
     return df
 
 def load_montagem_transporte() -> pd.DataFrame:
     """Expects: data/montagem_transporte.csv  with columns date, carga_id, error_type, qty"""
-    df = load_csv("montagem_transporte.csv", parse_dates=["DATA_ENTREGA"])
+    df = load_csv("montagem_transporte.csv", parse_dates=["DATA_OPERACAO"])
     return df
 
 def load_erros_percentual() -> pd.DataFrame:

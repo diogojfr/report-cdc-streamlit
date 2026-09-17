@@ -30,25 +30,25 @@ df_montagem_transporte = load_montagem_transporte()
 
 # ── Sidebar filters ───────────────────────────────────────────────────────
 # Use a single date picker for all charts (same period applied across datasets)
-df_pallets, period = date_filter(df_pallets, col="DATA_ENTREGA", key_prefix="period")
+df_pallets, period = date_filter(df_pallets, col="DATA_OPERACAO", key_prefix="period")
 start, end = period
 
 # Apply the same date range to other tables
-if not df_cargas.empty and "delivery_date" in df_cargas.columns:
-    mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
-    df_cargas = df_cargas[mask_cargas]
+# if not df_cargas.empty and "delivery_date" in df_cargas.columns:
+#     mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
+#     df_cargas = df_cargas[mask_cargas]
 
-if not df_conferencia.empty and "data_entrega" in df_conferencia.columns:
-    mask_conf = (df_conferencia["data_entrega"].dt.date >= start) & (df_conferencia["data_entrega"].dt.date <= end)
-    df_conferencia = df_conferencia[mask_conf]
+# if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
+#     mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
+#     df_conferencia = df_conferencia[mask_conf]
 
-if not df_caixa_hora.empty and "DATA_ENTREGA" in df_caixa_hora.columns:
-    mask_caixa_hora = (df_caixa_hora["DATA_ENTREGA"].dt.date >= start) & (df_caixa_hora["DATA_ENTREGA"].dt.date <= end)
-    df_caixa_hora = df_caixa_hora[mask_caixa_hora]
+# if not df_caixa_hora.empty and "DATA_OPERACAO" in df_caixa_hora.columns:
+#     mask_caixa_hora = (df_caixa_hora["DATA_OPERACAO"].dt.date >= start) & (df_caixa_hora["DATA_OPERACAO"].dt.date <= end)
+#     df_caixa_hora = df_caixa_hora[mask_caixa_hora]
 
-if not df_montagem_transporte.empty and "DATA_ENTREGA" in df_montagem_transporte.columns:
-    mask_montagem = (df_montagem_transporte["DATA_ENTREGA"].dt.date >= start) & (df_montagem_transporte["DATA_ENTREGA"].dt.date <= end)
-    df_montagem_transporte = df_montagem_transporte[mask_montagem]
+# if not df_montagem_transporte.empty and "DATA_OPERACAO" in df_montagem_transporte.columns:
+#     mask_montagem = (df_montagem_transporte["DATA_OPERACAO"].dt.date >= start) & (df_montagem_transporte["DATA_OPERACAO"].dt.date <= end)
+#     df_montagem_transporte = df_montagem_transporte[mask_montagem]
 
 
 
@@ -125,7 +125,7 @@ st.markdown('<div class="card">', unsafe_allow_html=True)
 st.markdown('<div class="card-title">Dados de Conferência</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 # Show a subset of columns to keep the table readable
-cols = [c for c in ["data_entrega", "conferente", "caixas", "tempo_conferencia"] if c in df_conferencia.columns]
+cols = [c for c in ["data_operacao", "conferente", "caixas", "tempo_conferencia"] if c in df_conferencia.columns]
 if cols:
     df_display = df_conferencia[cols].copy()
 
@@ -142,7 +142,7 @@ if cols:
         df_display["tempo_conferencia"] = df_display["tempo_conferencia"].apply(_format_duration)
 
     # Rename displayed columns to upper case for consistency
-    df_display["data_entrega"] = df_display["data_entrega"].dt.date
+    df_display["data_operacao"] = df_display["data_operacao"].dt.date
     df_display = df_display.rename(columns=str.upper)
 
     # Download button for the cargos table
