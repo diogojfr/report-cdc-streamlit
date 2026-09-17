@@ -54,13 +54,13 @@ df_pallets, period = date_filter(df_pallets, col="DATA_OPERACAO", key_prefix="pe
 start, end = period
 
 # Apply the same date range to other tables
-# if not df_cargas.empty and "delivery_date" in df_cargas.columns:
-#     mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
-#     df_cargas = df_cargas[mask_cargas]
+if not df_cargas.empty and "delivery_date" in df_cargas.columns:
+    mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
+    df_cargas = df_cargas[mask_cargas]
 
-# if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
-#     mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
-#     df_conferencia = df_conferencia[mask_conf]
+if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
+    mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
+    df_conferencia = df_conferencia[mask_conf]
 
 
 # ── Header ────────────────────────────────────────────────────────────────

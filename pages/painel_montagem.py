@@ -34,21 +34,21 @@ df_pallets, period = date_filter(df_pallets, col="DATA_OPERACAO", key_prefix="pe
 start, end = period
 
 # Apply the same date range to other tables
-# if not df_cargas.empty and "delivery_date" in df_cargas.columns:
-#     mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
-#     df_cargas = df_cargas[mask_cargas]
+if not df_cargas.empty and "delivery_date" in df_cargas.columns:
+    mask_cargas = (df_cargas["delivery_date"].dt.date >= start) & (df_cargas["delivery_date"].dt.date <= end)
+    df_cargas = df_cargas[mask_cargas]
 
-# if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
-#     mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
-#     df_conferencia = df_conferencia[mask_conf]
+if not df_conferencia.empty and "data_operacao" in df_conferencia.columns:
+    mask_conf = (df_conferencia["data_operacao"].dt.date >= start) & (df_conferencia["data_operacao"].dt.date <= end)
+    df_conferencia = df_conferencia[mask_conf]
 
-# if not df_caixa_hora.empty and "DATA_OPERACAO" in df_caixa_hora.columns:
-#     mask_caixa_hora = (df_caixa_hora["DATA_OPERACAO"].dt.date >= start) & (df_caixa_hora["DATA_OPERACAO"].dt.date <= end)
-#     df_caixa_hora = df_caixa_hora[mask_caixa_hora]
+if not df_caixa_hora.empty and "DATA_OPERACAO" in df_caixa_hora.columns:
+    mask_caixa_hora = (df_caixa_hora["DATA_OPERACAO"].dt.date >= start) & (df_caixa_hora["DATA_OPERACAO"].dt.date <= end)
+    df_caixa_hora = df_caixa_hora[mask_caixa_hora]
 
-# if not df_montagem_transporte.empty and "DATA_OPERACAO" in df_montagem_transporte.columns:
-#     mask_montagem = (df_montagem_transporte["DATA_OPERACAO"].dt.date >= start) & (df_montagem_transporte["DATA_OPERACAO"].dt.date <= end)
-#     df_montagem_transporte = df_montagem_transporte[mask_montagem]
+if not df_montagem_transporte.empty and "DATA_OPERACAO" in df_montagem_transporte.columns:
+    mask_montagem = (df_montagem_transporte["DATA_OPERACAO"].dt.date >= start) & (df_montagem_transporte["DATA_OPERACAO"].dt.date <= end)
+    df_montagem_transporte = df_montagem_transporte[mask_montagem]
 
 # page_header("Painel Montagem", period=period)
 
