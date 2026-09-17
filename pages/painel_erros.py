@@ -48,7 +48,7 @@ df_erros_dia = load_erros_dia()
 
 # ── Sidebar filters ───────────────────────────────────────────────────────
 # Use a single date picker for all charts (same period applied across datasets)
-df_pallets, period = date_filter(df_pallets, col="DATA_ENTREGA", key_prefix="period")
+df_pallets, period = date_filter(df_pallets, col="DATA_OPERACAO", key_prefix="period")
 start, end = period
 
 # Apply the same date range to other tables
