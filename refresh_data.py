@@ -21,7 +21,9 @@ from pathlib import Path
 
 import pandas as pd
 from dotenv import load_dotenv
+from psycopg2 import extensions as pg_ext
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sshtunnel import SSHTunnelForwarder
 
 BASE_DIR = Path(__file__).parent
@@ -29,6 +31,9 @@ QUERIES_DIR = BASE_DIR / "queries"
 DATA_DIR = BASE_DIR / "data"
 
 load_dotenv(BASE_DIR / ".env")
+
+# Datas que o psycopg2 não conseguiu converter na query em execução.
+_datas_invalidas: list[str] = []
 
 
 def _env(key: str) -> str:
@@ -78,6 +83,31 @@ def format_timedelta(td) -> str | None:
     return out
 
 
+def register_safe_date_casters() -> None:
+    """
+    Impede que uma data inválida no banco derrube a query inteira.
+
+    O datetime do Python só vai até o ano 9999; o Postgres vai até 294276.
+    Um timestamp digitado errado — ex.: '92026-05-28', typo de '2026' — faz o
+    psycopg2 estourar com "year 92026 is out of range" e a query toda falha.
+    O DBeaver tolerava porque os tipos de data do Java têm alcance maior.
+
+    Aqui o valor problemático vira NULL e a query continua. Os descartes são
+    registrados em _datas_invalidas e reportados ao final — nunca em silêncio.
+    """
+    for base in (pg_ext.PYDATE, pg_ext.PYDATETIME, pg_ext.PYDATETIMETZ):
+        def cast(value, cursor, _base=base):
+            if value is None:
+                return None
+            try:
+                return _base(value, cursor)
+            except (ValueError, OverflowError):
+                _datas_invalidas.append(value)
+                return None
+
+        pg_ext.register_type(pg_ext.new_type(base.values, f"SAFE_{base.name}", cast))
+
+
 def has_data(csv_path: Path) -> bool:
     """True se o CSV existe e tem ao menos uma linha além do cabeçalho."""
     if not csv_path.exists():
@@ -87,12 +117,14 @@ def has_data(csv_path: Path) -> bool:
         return next(fh, None) is not None
 
 
-def run_query(engine, sql_path: Path, allow_empty: bool = False) -> tuple[int, bool]:
+def run_query(engine, sql_path: Path, allow_empty: bool = False) -> tuple[int, bool, list[str]]:
     """
     Executa uma query e substitui o CSV de destino.
-    Retorna (nº de linhas, se o CSV foi gravado).
+    Retorna (nº de linhas, se o CSV foi gravado, datas inválidas descartadas).
     """
+    _datas_invalidas.clear()
     df = pd.read_sql(sql_path.read_text(encoding="utf-8"), engine)
+    descartadas = list(_datas_invalidas)
 
     # intervals do Postgres chegam como timedelta64 via psycopg2 — reformatar
     # posicionalmente, já que algumas queries repetem nomes de coluna
@@ -106,12 +138,12 @@ def run_query(engine, sql_path: Path, allow_empty: bool = False) -> tuple[int, b
     # (schema errado, filtro de data), não ausência real de dados. Preservar o
     # anterior em vez de zerar o painel em silêncio.
     if df.empty and not allow_empty and has_data(destination):
-        return 0, False
+        return 0, False, descartadas
 
     tmp = destination.with_suffix(".csv.tmp")
     df.to_csv(tmp, index=False, encoding="utf-8")
     os.replace(tmp, destination)          # troca atômica: nunca deixa CSV parcial
-    return len(df), True
+    return len(df), True, descartadas
 
 
 def main() -> int:
@@ -132,9 +164,20 @@ def main() -> int:
         ssh_password=_env("SSH_PASSWORD"),
         remote_bind_address=(_env("DB_HOST"), int(_env("DB_PORT"))),
     ) as tunnel:
+        register_safe_date_casters()
+        # URL.create escapa usuário e senha. Montar a URL por concatenação quebra
+        # quando a senha tem @ : / ou # — o parser corta no primeiro @ e trata o
+        # resto da senha como nome de host.
+        url = URL.create(
+            "postgresql+psycopg2",
+            username=_env("DB_USER"),
+            password=_env("DB_PASSWORD"),
+            host="127.0.0.1",
+            port=tunnel.local_bind_port,
+            database=_env("DB_NAME"),
+        )
         engine = create_engine(
-            f"postgresql+psycopg2://{_env('DB_USER')}:{_env('DB_PASSWORD')}"
-            f"@127.0.0.1:{tunnel.local_bind_port}/{_env('DB_NAME')}",
+            url,
             # search_path replica o schema ativo que o DBeaver definia: algumas queries
             # referenciam tabelas sem prefixo (ex.: "FROM daily_operations"), e sem isso
             # elas resolvem para public.* e voltam vazias em vez de dar erro.
@@ -160,17 +203,21 @@ def main() -> int:
         print(f"Conectado em {_env('DB_NAME')}. {len(queries)} query(s) a executar.\n")
 
         allow_empty = "--allow-empty" in sys.argv
-        failures, empties = [], []
+        failures, empties, datas_ruins = [], [], {}
         for i, sql_path in enumerate(queries, 1):
             label = f"[{i}/{len(queries)}] {sql_path.stem}"
             started = time.monotonic()
             try:
-                rows, written = run_query(engine, sql_path, allow_empty)
+                rows, written, descartadas = run_query(engine, sql_path, allow_empty)
+                aviso = f"  [{len(descartadas)} data(s) inválida(s) -> NULL]" if descartadas else ""
+                if descartadas:
+                    datas_ruins[sql_path.stem] = descartadas
                 if written:
-                    print(f"{label:<35} {rows:>7} linhas  {time.monotonic() - started:5.1f}s")
+                    print(f"{label:<35} {rows:>7} linhas  "
+                          f"{time.monotonic() - started:5.1f}s{aviso}")
                 else:
                     empties.append(sql_path.stem)
-                    print(f"{label:<35} VAZIA — CSV anterior preservado")
+                    print(f"{label:<35} VAZIA — CSV anterior preservado{aviso}")
             except Exception as exc:
                 failures.append(sql_path.stem)
                 # SQLAlchemy embrulha o erro do driver; .orig traz a mensagem real do Postgres
@@ -180,6 +227,13 @@ def main() -> int:
                 print(f"{label:<35} FALHOU: {detail}")
 
         engine.dispose()
+
+    if datas_ruins:
+        print("\nAVISO — datas inválidas no banco, gravadas como NULL:")
+        for stem, valores in datas_ruins.items():
+            amostra = ", ".join(sorted(set(valores))[:3])
+            print(f"  {stem}: {len(valores)} ocorrência(s) — {amostra}")
+        print("  São dados digitados errados na origem. Corrija no banco para recuperá-los.")
 
     if failures:
         print(f"\n{len(failures)} query(s) falharam (CSV anterior mantido): {', '.join(failures)}")
